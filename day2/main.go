@@ -24,29 +24,39 @@ func main() {
 	defer file.Close()
 
 	sum := 0
+	powerSum := 0
 	scanner := bufio.NewScanner(file)
 	// process each line
 	for scanner.Scan() {
 		line := scanner.Text()
 		gameId, highestRedCubes, highestGreenCubes, highestBlueCubes := processLine(line)
+		// multiply the highest of each color to get the minimun power of this game set
+		powerSum += highestRedCubes * highestGreenCubes * highestBlueCubes
+		// validate if the game is possible
 		if highestRedCubes <= 12 && highestGreenCubes <= 13 && highestBlueCubes <= 14 {
 			sum += gameId
 		}
+
 	}
 
 	fmt.Printf("The sum of all possible is %d\n", sum)
+	fmt.Printf("The power sum is %d\n", powerSum)
 }
 
 func processLine(input string) (int, int, int, int) {
+	// split the line in two parts, the game id and the sets
 	parts := strings.Split(strings.ToLower(input), ":")
 	gamePart := parts[0]
+	// split the sets in cubes and remove the spaces
 	sets := strings.Split(strings.ReplaceAll(parts[1], " ", ""), ";")
 	highestRedCubes := 0
 	highestGreenCubes := 0
 	highestBlueCubes := 0
+
 	for _, set := range sets {
 		cubes := strings.Split(set, ",")
 		for _, cube := range cubes {
+			// check if the cube is red, green or blue and get the highest number
 			if strings.HasSuffix(cube, "red") {
 				num, err := strconv.Atoi(strings.ReplaceAll(cube, "red", ""))
 				if err != nil {
@@ -78,6 +88,7 @@ func processLine(input string) (int, int, int, int) {
 		}
 	}
 
+	// convert the game id to int
 	gameId, err := strconv.Atoi(strings.ReplaceAll(gamePart, "game ", ""))
 	if err != nil {
 		panic(err)
